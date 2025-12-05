@@ -6,11 +6,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   checks: write
+  security-events: write
+  packages: write
 
 env:
-  DOCKER_IMAGE: your-dockerhub-username/myapp
+  DOCKER_IMAGE: ghcr.io/Max2535/myapp
   ENVIRONMENT: dev
 
 jobs:
@@ -26,7 +28,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
           cache: 'maven'
 
       - name: Run tests
@@ -60,7 +62,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -71,6 +73,7 @@ jobs:
 
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.version.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -80,7 +83,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
           cache: 'maven'
 
       - name: Get version from pom.xml
@@ -96,11 +99,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
@@ -138,20 +142,23 @@ jobs:
       - name: Checkout GitOps repo
         uses: actions/checkout@v4
         with:
-          repository: your-username/myapp-gitops
-          token: ${{ secrets.GITOPS_TOKEN }}
+          repository: Max2535/myapp-gitops
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update image tag
         run: |
+          # Get first tag from multi-line output
+          NEW_TAG=$(echo "${{ needs.build.outputs.image_tag }}" | head -n1)
+          VERSION="${{ env.ENVIRONMENT }}-${{ needs.build.outputs.version }}-${{ github.run_number }}"
+
           cd ${{ env.ENVIRONMENT }}
 
           # Update values.yaml
-          NEW_TAG="${{ needs.build.outputs.image_tag }}"
-          sed -i "s|image:.*|image: ${NEW_TAG}|g" values.yaml
+          sed -i "s|tag:.*|tag: ${VERSION}|g" values.yaml
 
           # Commit and push
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add values.yaml
-          git commit -m "Update ${{ env.ENVIRONMENT }} image to ${NEW_TAG}"
+          git commit -m "Update ${{ env.ENVIRONMENT }} image to ${VERSION}" || echo "No changes to commit"
           git push
