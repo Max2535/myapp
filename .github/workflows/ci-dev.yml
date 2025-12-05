@@ -12,7 +12,7 @@ permissions:
   packages: write
 
 env:
-  DOCKER_IMAGE: ghcr.io/max2535/myapp
+  DOCKER_IMAGE: ghcr.io/Max2535/myapp
   ENVIRONMENT: dev
 
 jobs:
@@ -173,7 +173,7 @@ jobs:
 
 Auto-updated by GitHub Actions from build #${{ github.run_number }}
 
-Image: ghcr.io/max2535/myapp:${VERSION}"
+Image: ghcr.io/Max2535/myapp:${VERSION}"
             git push
             echo "Successfully updated GitOps repository"
           fi
