@@ -5,6 +5,10 @@ on:
     branches: [dev]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+
 env:
   DOCKER_IMAGE: your-dockerhub-username/myapp
   ENVIRONMENT: dev
@@ -32,6 +36,8 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
+          # pass token explicitly (workflow-level permissions must allow 'checks: write')
+          token: ${{ secrets.GITHUB_TOKEN }}
           name: Maven Tests
           path: target/surefire-reports/*.xml
           reporter: java-junit
