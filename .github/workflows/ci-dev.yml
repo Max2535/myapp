@@ -143,7 +143,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Max2535/myapp-gitops
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITOPS_TOKEN }}
 
       - name: Update image tag
         run: |
