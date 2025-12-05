@@ -147,18 +147,33 @@ jobs:
 
       - name: Update image tag
         run: |
-          # Get first tag from multi-line output
-          NEW_TAG=$(echo "${{ needs.build.outputs.image_tag }}" | head -n1)
           VERSION="${{ env.ENVIRONMENT }}-${{ needs.build.outputs.version }}-${{ github.run_number }}"
+
+          echo "Updating GitOps repo with new image tag: ${VERSION}"
 
           cd ${{ env.ENVIRONMENT }}
 
-          # Update values.yaml
-          sed -i "s|tag:.*|tag: ${VERSION}|g" values.yaml
+          # Update values.yaml - match the exact format
+          # Change: "  tag: xxx" to "  tag: ${VERSION}"
+          sed -i "s|^  tag:.*|  tag: ${VERSION}|g" values.yaml
+
+          # Verify the change
+          echo "Updated values.yaml:"
+          grep -A 3 "^image:" values.yaml || echo "Could not find image section"
 
           # Commit and push
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add values.yaml
-          git commit -m "Update ${{ env.ENVIRONMENT }} image to ${VERSION}" || echo "No changes to commit"
-          git push
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🚀 Update ${{ env.ENVIRONMENT }} image to ${VERSION}
+
+Auto-updated by GitHub Actions from build #${{ github.run_number }}
+
+Image: ghcr.io/max2535/myapp:${VERSION}"
+            git push
+            echo "Successfully updated GitOps repository"
+          fi
