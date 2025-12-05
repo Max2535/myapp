@@ -12,7 +12,7 @@ permissions:
   packages: write
 
 env:
-  DOCKER_IMAGE: ghcr.io/Max2535/myapp
+  DOCKER_IMAGE: ghcr.io/max2535/myapp
   ENVIRONMENT: dev
 
 jobs:
