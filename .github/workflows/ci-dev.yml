@@ -169,11 +169,9 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "🚀 Update ${{ env.ENVIRONMENT }} image to ${VERSION}
-
-Auto-updated by GitHub Actions from build #${{ github.run_number }}
-
-Image: ghcr.io/Max2535/myapp:${VERSION}"
+            git commit -m "Update ${{ env.ENVIRONMENT }} image to ${VERSION}" \
+                       -m "Auto-updated by GitHub Actions from build #${{ github.run_number }}" \
+                       -m "Image: ghcr.io/max2535/myapp:${VERSION}"
             git push
             echo "Successfully updated GitOps repository"
           fi
