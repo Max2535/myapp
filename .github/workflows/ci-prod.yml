@@ -158,7 +158,7 @@ jobs:
           cd production
 
           # Update values.yaml
-          sed -i "s|^    tag:.*|    tag: ${VERSION}|g" values.yaml
+          sed -i "s|^  tag:.*|  tag: ${VERSION}|g" values.yaml
 
           # Verify the change
           echo "Updated values.yaml:"
