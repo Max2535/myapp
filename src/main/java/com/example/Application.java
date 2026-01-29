@@ -27,4 +27,10 @@ public class Application {
     public String health() {
         return "OK";
     }
+
+    @Operation(summary = "Get application info", description = "Returns basic application metadata")
+    @GetMapping("/info")
+    public AppInfo appInfo() {
+        return new AppInfo("myapp", "0.1.0", "MyApp - CICD/Kubernetes sample project");
+    }
 }
