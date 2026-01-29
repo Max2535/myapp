@@ -155,7 +155,7 @@ jobs:
 
           echo "Updating Production GitOps repo with new image tag: ${VERSION}"
 
-          cd ${{ env.ENVIRONMENT }}ution
+          cd production
 
           # Update values.yaml
           sed -i "s|^    tag:.*|    tag: ${VERSION}|g" values.yaml
