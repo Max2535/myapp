@@ -144,6 +144,7 @@ jobs:
         with:
           repository: Max2535/myapp-gitops
           token: ${{ secrets.GITOPS_TOKEN }}
+          ref: dev
 
       - name: Update image tag
         run: |
