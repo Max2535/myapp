@@ -19,7 +19,7 @@ public class Application {
     @Operation(summary = "Hello endpoint", description = "Returns a greeting message")
     @GetMapping("/")
     public String hello() {
-        return "Hello from GitOps CI/CD!";
+        return "Hello from GitOps CI/CD PROD!";
     }
 
     @Operation(summary = "Health check", description = "Returns OK when healthy")
