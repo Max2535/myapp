@@ -172,7 +172,12 @@ jobs:
             git commit -m "Update ${{ env.ENVIRONMENT }} image to ${VERSION}" \
                        -m "Auto-updated by GitHub Actions from build #${{ github.run_number }}" \
                        -m "Image: ghcr.io/max2535/myapp:${VERSION}"
-            git pull --rebase origin dev
-            git push origin HEAD:dev
+            # Try to push, if fail then pull and retry
+            for i in 1 2 3; do
+              git push origin HEAD:dev && break
+              echo "Push failed, pulling and retrying..."
+              git pull --rebase -X ours origin dev || git rebase --abort
+              git add -A
+            done
             echo "Successfully updated GitOps repository"
           fi
